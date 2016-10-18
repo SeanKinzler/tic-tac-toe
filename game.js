@@ -1,9 +1,9 @@
-var prompt = require('prompt')
+var prompt = require('prompt');
 
 var gameStart = function (test) {
   //init game board
   //print empty board
-  var player1 = true;
+  prompt.start();
   if(test) {
     tests();
   }
@@ -12,28 +12,58 @@ var gameStart = function (test) {
     [0, 0, 0], 
     [0, 0, 0]
   ];
-  playTurn(board)
+  playTurn(board, true)
 };
 
 var playTurn = function(board, turn) {
   renderBoard(board);
   if (turn) {
-    var move = input('Player one\'s turn.  Where do you want to play? ')
+    console.log('Player one\'s turn.  Where do you want to play? ')
+    prompt.get(['play'], (err, results) => {
+      var move = results.play;
+      console.log(typeof move);
+      if (move === undefined || typeof parseInt(move) !== 'number' || move > 9 || move < 0) {
+        console.log('invalid move!\n');
+        playTurn(board, turn);
+        return
+      } else {
+        var row = parseInt(move) % 3;
+        var col = Math.floor(parseInt(move) / 3)
+        board[col][row] = 1;
+      }
+      var cont = gameContinues(board);
+      if (cont !== 0) {
+        renderBoard(board);
+        console.log('Player ' + cont + 'wins!');
+        return
+      }
+      playTurn(board, !turn)
+      return
+    })
   } else {
-    var move = input('Player two\'s turn.  Where do you want to play? ')
+    console.log('Player two\'s turn.  Where do you want to play? ')
+    prompt.get(['play'], (err, results) => {
+      var move = results.play
+      if (move === undefined || typeof parseInt(move) !== 'number' || move > 9 || move < 0) {
+        console.log('invalid move!\n');
+        playTurn(board, turn);
+        return
+      } else {
+        var row = parseInt(move) % 3;
+        var col = Math.floor(parseInt(move) / 3)
+        board[col][row] = 2;
+      }
+      var cont = gameContinues(board);
+      if (cont !== 0) {
+        renderBoard(board);
+        console.log('Player ' + cont + 'wins!');
+        return
+      }
+      playTurn(board, !turn)
+      return
+    })
   }
-  if (typeof move !== 'number' || move > 9 || move < 0) {
-    console.log('invalid move!\n');
-    playTurn(board, turn);
-    return
-  }
-  var cont = gameContinues(board);
-  if (cont !== 0) {
-    console.log('Player ' + cont + 'wins!');
-    return
-  }
-  playTurn(board, !turn)
-  return
+  
 }
 
 var gameContinues = function (board) {
