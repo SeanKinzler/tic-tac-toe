@@ -21,15 +21,14 @@ var playTurn = function(board, turn) {
     console.log('Player one\'s turn.  Where do you want to play? ')
     prompt.get(['play'], (err, results) => {
       var move = results.play;
-      console.log(typeof move);
-      if (move === undefined || typeof parseInt(move) !== 'number' || move > 9 || move < 0) {
+      var col = parseInt(move) % 3;
+      var row = Math.floor(parseInt(move) / 3);
+      if (move === undefined || typeof parseInt(move) !== 'number' || board[row][col] !== 0 || move > 9 || move < 0) {
         console.log('invalid move!\n');
         playTurn(board, turn);
         return
       } else {
-        var row = parseInt(move) % 3;
-        var col = Math.floor(parseInt(move) / 3)
-        board[col][row] = 1;
+        board[row][col] = 1;
       }
       var cont = gameContinues(board);
       if (cont !== 0) {
@@ -44,19 +43,19 @@ var playTurn = function(board, turn) {
     console.log('Player two\'s turn.  Where do you want to play? ')
     prompt.get(['play'], (err, results) => {
       var move = results.play
-      if (move === undefined || typeof parseInt(move) !== 'number' || move > 9 || move < 0) {
+      var col = parseInt(move) % 3;
+      var row = Math.floor(parseInt(move) / 3)
+      if (move === undefined || typeof parseInt(move) !== 'number' || board[row][col] !== 0 || move > 9 || move < 0) {
         console.log('invalid move!\n');
         playTurn(board, turn);
         return
       } else {
-        var row = parseInt(move) % 3;
-        var col = Math.floor(parseInt(move) / 3)
-        board[col][row] = 2;
+        board[row][col] = 2;
       }
       var cont = gameContinues(board);
       if (cont !== 0) {
         renderBoard(board);
-        console.log('Player ' + cont + 'wins!');
+        console.log('Player ' + cont + ' wins!!!!!!!!!');
         return
       }
       playTurn(board, !turn)
@@ -75,7 +74,7 @@ var gameContinues = function (board) {
       var curCol = board[j][i];
       if (curCol !== firstCol) {
         check = false;
-      } else if (curCol === firstCol && j === 2 && check) {
+      } else if (j === 2 && check) {
         return curCol;
       }
     }
@@ -84,7 +83,7 @@ var gameContinues = function (board) {
       var curRow = board[i][j];
       if (curRow !== firstRow) {
         var check = false;
-      } else if (curRow === firstRow && j === 2 && check) {
+      } else if (j === 2 && check) {
         return curRow;
       }
     }
@@ -94,17 +93,18 @@ var gameContinues = function (board) {
   for (var d = 0; d < 3; d++) {
     var curDiag = board[d][d];
     if (curDiag !== firstDiag) {
-      var check = true;
-    } else if (curDiag === firstDiag && d === 2 && check) {
+      var check = false;
+    } else if (d === 2 && check) {
       return curDiag;
     }
   }
-  var fistDiag = board[0][2];
+  var check = true;
+  var firstDiag = board[0][2];
   for (var d = 0; d < 3; d++) {
     var curDiag = board[d][2 - d];
     if (curDiag !== firstDiag) {
-      var check = true;
-    } else if (curDiag === firstDiag && d === 2 && check) {
+      var check = false;
+    } else if (d === 2 && check) {
       return curDiag;
     }
   }
@@ -120,11 +120,12 @@ var renderBoard = function (board) {
       } else if (board[i][j] === 2) {
         tempBoard[i][j] = 'O';
       } else {
-        tempBoard[i][j] = '-';
+        tempBoard[i][j] = 3*i + j + '';
       }
     }
   }
-  console.log(tempBoard[0] + '\n' + tempBoard[1] + '\n' + tempBoard[2] + '\n');
+  console.log('|' + tempBoard[0] + '|\n' + 
+    '|' + tempBoard[1] + '|\n' + '|' + tempBoard[2] + '|\n');
 }
 
 var tests = function () {
@@ -140,6 +141,18 @@ var tests = function () {
     [0, 0, 0]
   ];
   console.log(2 === gameContinues(board));
+  var board = [
+    [2, 1, 0], 
+    [1, 2, 1], 
+    [2, 1, 0]
+  ];
+  console.log(0 === gameContinues(board));
+  var board = [
+    [2, 1, 0], 
+    [1, 0, 1], 
+    [2, 1, 1]
+  ];
+  console.log(0 === gameContinues(board));
   var board = [
     [1, 0, 0], 
     [1, 0, 0], 
